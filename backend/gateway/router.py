@@ -5,6 +5,9 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from backend.logger import logger
 import time
+from backend.config import AI_GATEWAY_MODE
+from backend.gateway.provider_factory import get_provider
+
 
 
 router = APIRouter(
@@ -51,13 +54,12 @@ def gateway_chat(request: GatewayRequest):
         timezone.utc
     ).isoformat()
 
-    responses = {
-        "openai": "Hello from OpenAI simulation!",
-        "gemini": "Hello from Gemini simulation!",
-        "claude": "Hello from Claude simulation!"
-    }
 
-    selected_response = responses[request.provider]
+    provider = get_provider(request.provider)
+
+    selected_response = provider.generate_response(
+        request.message
+    )
 
     responses_time_ms = round(
         (time.perf_counter() - start_time) * 1000, 2
@@ -75,6 +77,6 @@ def gateway_chat(request: GatewayRequest):
         "user_message": request.message,
         "ai_response": selected_response,
         "response_time_ms": responses_time_ms,
-        "mode": "simulation",
+        "mode": AI_GATEWAY_MODE,
         "status": "success"
     }

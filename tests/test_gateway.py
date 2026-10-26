@@ -68,3 +68,16 @@ def test_whitespace_message():
     )
 
     assert response.status_code == 422
+
+
+def test_uppercase_provider_rejected():
+
+    response = client.post(
+        "/api/v1/gateway/chat",
+        json={
+            "provider": "Claude",
+            "message": "Hello!"
+        }
+    )
+
+    assert response.status_code == 422

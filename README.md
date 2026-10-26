@@ -55,7 +55,7 @@ Enterprise-AI-Hub/
 Clone the repository:
 
 ```bash
-git clone https://github.com/cpllearning894-ui?tab/Enterprise-AI-Hub.git
+git clone https://github.com/cpllearning894-ui/Enterprise-AI-Hub.git
 cd Enterprise-AI-Hub
 ```
 
