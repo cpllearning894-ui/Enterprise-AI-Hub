@@ -147,3 +147,69 @@ Current test coverage includes:
 ## Purpose
 
 To demonstrate practical backend development, AI integration, API engineering, testing, and enterprise AI platform design.
+
+
+## Local AI Integration with Ollama
+
+Enterprise AI Hub supports local AI inference using Ollama and the Qwen2.5 1.5B language model.
+
+### Requirements
+
+* Python 3.12
+* Ollama installed
+* Qwen2.5 1.5B model downloaded
+
+### Download the AI Model
+
+```powershell
+ollama pull qwen2.5:1.5b
+```
+
+### Configure the AI Gateway
+
+Create a `.env` file using `.env.example` as a template.
+
+```dotenv
+AI_GATEWAY_MODE=simulation
+APP_ENV=development
+OLLAMA_MODEL=qwen2.5:1.5b
+OLLAMA_TIMEOUT=120
+```
+
+### Run the Backend
+
+```powershell
+python -m uvicorn backend.main:app --reload
+```
+
+Open Swagger UI:
+
+http://127.0.0.1:8000/docs
+
+### Test the Real AI Provider
+
+Use `POST /api/v1/gateway/chat` with:
+
+```json
+{
+  "provider": "ollama",
+  "message": "Explain artificial intelligence in one sentence."
+}
+```
+
+The gateway sends the message to the local Ollama model and returns the generated response.
+
+### Run Automated Tests
+
+```powershell
+python -m pytest -v
+```
+
+The test suite covers gateway validation, simulated providers, Ollama integration, connection failures, timeouts, and configuration checks.
+
+### Security Notes
+
+* Do not commit `.env` files containing secrets.
+* Do not hardcode API keys or credentials.
+* Review and update Python dependencies regularly.
+* Use dependency security scanning before deployment.

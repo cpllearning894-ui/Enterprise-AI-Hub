@@ -7,6 +7,8 @@ from backend.logger import logger
 import time
 from backend.config import AI_GATEWAY_MODE
 from backend.gateway.provider_factory import get_provider
+from fastapi import HTTPException
+from backend.gateway.providers.exceptions import AIProviderError
 
 
 
@@ -18,7 +20,7 @@ router = APIRouter(
 
 # Define the incoming request
 class GatewayRequest(BaseModel):
-    provider: Literal["openai", "gemini", "claude"]
+    provider: Literal["openai", "gemini", "claude", "ollama"]
 
     message: str = Field(
         min_length=1,
@@ -57,9 +59,29 @@ def gateway_chat(request: GatewayRequest):
 
     provider = get_provider(request.provider)
 
-    selected_response = provider.generate_response(
-        request.message
-    )
+    try:
+        selected_response = provider.generate_response(
+            request.message
+        )
+
+    except AIProviderError as error:
+
+        logger.error(
+            "Gateway request failed | request_id=%s | provider=%s | status_code=%s",
+            request_id,
+            request.provider,
+            error.status_code
+        )
+
+        raise HTTPException(
+
+            status_code=error.status_code,
+            detail={
+                "request_id": request_id,
+                "message": error.message,
+                "status": "error"
+            }
+        ) from error
 
     responses_time_ms = round(
         (time.perf_counter() - start_time) * 1000, 2
@@ -77,6 +99,6 @@ def gateway_chat(request: GatewayRequest):
         "user_message": request.message,
         "ai_response": selected_response,
         "response_time_ms": responses_time_ms,
-        "mode": AI_GATEWAY_MODE,
+        "mode": "local" if request.provider == "ollama" else AI_GATEWAY_MODE,
         "status": "success"
     }

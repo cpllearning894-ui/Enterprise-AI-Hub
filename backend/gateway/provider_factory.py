@@ -2,6 +2,7 @@
 from backend.gateway.providers.openai_provider import OpenAIProvider
 from backend.gateway.providers.gemini_provider import GeminiProvider
 from backend.gateway.providers.claude_provider import ClaudeProvider
+from backend.gateway.providers.ollama_provider import OllamaProvider
 
 
 def get_provider(provider_name: str):
@@ -9,7 +10,8 @@ def get_provider(provider_name: str):
     providers = {
         "openai": OpenAIProvider,
         "gemini": GeminiProvider,
-        "claude": ClaudeProvider
+        "claude": ClaudeProvider,
+        "ollama": OllamaProvider
     }
 
     provider_class = providers.get(provider_name)

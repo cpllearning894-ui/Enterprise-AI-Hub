@@ -19,7 +19,18 @@ APP_ENV = os.getenv(
     "development"
 )
 
+OLLAMA_MODEL = os.getenv(
+    "OLLAMA_MODEL",
+    "qwen2.5:1.5b"
+)
+
+OLLAMA_TIMEOUT = float(
+    os.getenv("OLLAMA_TIMEOUT", "120")
+)
+
 
 if __name__ == "__main__":
     print("AI Gateway Mode:", AI_GATEWAY_MODE)
     print("Application Environment:", APP_ENV)
+    print("Ollama Model:", OLLAMA_MODEL)
+    print("Ollama Timeout:", OLLAMA_TIMEOUT)

@@ -1,6 +1,9 @@
 
 from fastapi.testclient import TestClient
 from backend.main import app
+from unittest.mock import patch
+
+from backend.gateway.providers.exceptions import AIProviderError
 
 client = TestClient(app)
 
@@ -81,3 +84,53 @@ def test_uppercase_provider_rejected():
     )
 
     assert response.status_code == 422
+
+
+def test_ollama_connection_failure():
+
+    with patch(
+        "backend.gateway.providers.ollama_provider.httpx.post",
+        side_effect=__import__("httpx").ConnectError(
+            "Connection refused"
+        )
+    ):
+
+        response = client.post(
+            "/api/v1/gateway/chat",
+            json={
+                "provider": "ollama",
+                "message": "Hello!"
+            }
+        )
+
+    assert response.status_code == 503
+
+    data = response.json()
+
+    assert data["detail"]["status"] == "error"
+    assert "request_id" in data["detail"]
+
+
+def test_ollama_timeout():
+
+    with patch(
+        "backend.gateway.providers.ollama_provider.httpx.post",
+        side_effect=__import__("httpx").ReadTimeout(
+            "Request timed out"
+        )
+    ):
+
+        response = client.post(
+            "/api/v1/gateway/chat",
+            json={
+                "provider": "ollama",
+                "message": "Hello!"
+            }
+        )
+
+    assert response.status_code == 504
+
+    data = response.json()
+
+    assert data["detail"]["status"] == "error"
+    assert "request_id" in data["detail"]
