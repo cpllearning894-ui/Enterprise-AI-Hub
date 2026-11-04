@@ -16,3 +16,6 @@ __pycache__/
 
 # Test cache
 .pytest_cache/
+
+# Persistent ChromaDB data
+vector_db/

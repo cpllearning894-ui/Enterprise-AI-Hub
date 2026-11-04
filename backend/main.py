@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field, field_validator
 from backend.gateway.router import router as gateway_router
+from backend.rag.router import router as rag_router
 
 app = FastAPI(
     title="Enterprise AI Hub API",
@@ -67,3 +68,5 @@ def chat(request: ChatRequest):
     }
 
 app.include_router(gateway_router)
+
+app.include_router(rag_router)

@@ -1,0 +1,17 @@
+
+ENTERPRISE AI HUB - SECURITY POLICY
+
+Password Security:
+Employees must use strong passwords
+and must not share them with others.
+
+Multi-Factor Authentication:
+MFA is required for company accounts.
+
+Suspicious Emails:
+Employees must report suspicious emails
+to the security team.
+
+Confidential Data:
+Confidential company information must not
+be shared with unauthorized people.

@@ -1,0 +1,25 @@
+
+ENTERPRISE AI HUB - COMPANY POLICY
+
+Company Name: Enterprise AI Hub Demo Company
+
+Working Hours:
+Employees work from Monday to Friday,
+8:00 AM to 5:00 PM.
+
+Annual Leave:
+Full-time employees receive 18 days of
+paid annual leave per year.
+
+Remote Work:
+Employees may work remotely up to
+2 days per week with manager approval.
+
+IT Support:
+Employees should contact the IT department
+for technical problems.
+
+Data Security:
+Employees must not share passwords,
+API keys, or confidential company data
+with unauthorized people.
