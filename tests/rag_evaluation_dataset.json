@@ -1,0 +1,15 @@
+
+[
+    {
+        "question": "Do I need permission to install software on my work laptop?",
+        "expected_source": "it_policy.txt"
+    },
+    {
+        "question": "Is MFA required for company accounts?",
+        "expected_source": "security_policy.txt"
+    },
+    {
+        "question": "What is the company's leave policy?",
+        "expected_source": "company_policy.txt"
+    }
+]
