@@ -34,13 +34,33 @@ def test_semantic_rag_success(
         "Do I need permission?"
     )
 
+    # Check the generated answer
     assert result["answer"] == (
         "Yes, IT approval is required."
     )
 
+    # Check the retrieved source
     assert result["sources"][0]["document"] == (
         "it_policy.txt"
     )
+
+    # Check evaluation results
+    assert "evaluation" in result
+
+    evaluation = result["evaluation"]
+
+    assert "faithfulness" in evaluation
+    assert "answer_relevance" in evaluation
+    assert "context_relevance" in evaluation
+
+    assert evaluation["evaluation_method"] == (
+        "keyword_overlap_baseline"
+    )
+
+    # All scores must be between 0 and 1
+    assert 0.0 <= evaluation["faithfulness"] <= 1.0
+    assert 0.0 <= evaluation["answer_relevance"] <= 1.0
+    assert 0.0 <= evaluation["context_relevance"] <= 1.0
 
 
 @patch(
@@ -55,6 +75,10 @@ def test_semantic_rag_no_results(mock_search):
     )
 
     assert result["sources"] == []
+
+    assert "evaluation" in result
+
+    assert result["evaluation"]["faithfulness"] == 0.0
 
 
 def test_semantic_rag_empty_question():

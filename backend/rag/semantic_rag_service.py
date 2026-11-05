@@ -1,6 +1,8 @@
 
 from backend.rag.semantic_search import semantic_search
 from backend.gateway.providers.ollama_provider import OllamaProvider
+from backend.rag.answer_evaluator import evaluate_answer
+
 
 
 def answer_semantic_question(question: str) -> dict:
@@ -12,10 +14,21 @@ def answer_semantic_question(question: str) -> dict:
     results = semantic_search(question, top_k=1)
 
     if not results:
+        fallback_answer = (
+            "I could not find this information in the company policies."
+        )
+
+        evaluation = evaluate_answer(
+            question,
+            fallback_answer,
+            ""
+        )
+
         return {
             "question": question,
-            "answer": "I could not find this information in the company policies.",
-            "sources": []
+            "answer": fallback_answer,
+            "sources": [],
+            "evaluation": evaluation
         }
 
     best_result = results[0]
@@ -54,9 +67,17 @@ ANSWER:
 
     answer = provider.generate_response(prompt)
 
-    # Step 5: Return the answer and source
+    # Step 5: Evaluate the generated answer
+    evaluation = evaluate_answer(
+        question,
+        answer,
+        context
+    )
+
+    # Step 6: Return answer, source and evaluation
     return {
         "question": question,
         "answer": answer,
-        "sources": [best_result]
+        "sources": [best_result],
+        "evaluation": evaluation
     }
