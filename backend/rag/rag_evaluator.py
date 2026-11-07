@@ -23,13 +23,21 @@ def load_evaluation_dataset() -> list[dict]:
     return dataset
 
 
-def evaluate_retrieval(top_k: int = 3) -> dict:
+def evaluate_retrieval(
+    top_k: int = 3,
+    similarity_threshold: float = 0.70
+) -> dict:
     """
     Evaluate semantic retrieval using Hit Rate and MRR.
     """
 
     if top_k <= 0:
         raise ValueError("top_k must be greater than zero")
+
+    if not 0 <= similarity_threshold <= 1:
+        raise ValueError(
+            "similarity_threshold must be between 0 and 1"
+        )
 
     # Step 1: Load evaluation questions
     dataset = load_evaluation_dataset()
@@ -50,20 +58,20 @@ def evaluate_retrieval(top_k: int = 3) -> dict:
         question = item["question"]
         expected_source = item["expected_source"]
 
-        # Retrieve the most relevant document chunks
+        # Retrieve chunks using the selected threshold
         retrieved_chunks = semantic_search(
             question,
-            top_k=top_k
+            top_k=top_k,
+            similarity_threshold=similarity_threshold
         )
 
-        # Extract the retrieved source filenames
-
+        # Extract unique source filenames
         retrieved_sources = list(dict.fromkeys(
             chunk["document"]
             for chunk in retrieved_chunks
         ))
 
-        # Step 3: Find the rank of the expected document
+        # Step 3: Find the expected document's rank
         rank = None
 
         for index, source in enumerate(retrieved_sources, start=1):
@@ -76,7 +84,6 @@ def evaluate_retrieval(top_k: int = 3) -> dict:
         if rank is not None:
 
             successful_hits += 1
-
             reciprocal_rank = 1 / rank
 
         else:
@@ -94,7 +101,7 @@ def evaluate_retrieval(top_k: int = 3) -> dict:
             "reciprocal_rank": reciprocal_rank
         })
 
-    # Step 5: Calculate final evaluation metrics
+    # Step 5: Calculate evaluation metrics
     hit_rate = successful_hits / total_questions
 
     mean_reciprocal_rank = (
@@ -105,6 +112,7 @@ def evaluate_retrieval(top_k: int = 3) -> dict:
     return {
         "total_questions": total_questions,
         "successful_hits": successful_hits,
+        "similarity_threshold": similarity_threshold,
         "hit_rate": round(hit_rate, 4),
         "mrr": round(mean_reciprocal_rank, 4),
         "results": evaluation_results
@@ -113,26 +121,33 @@ def evaluate_retrieval(top_k: int = 3) -> dict:
 
 if __name__ == "__main__":
 
-    report = evaluate_retrieval(top_k=3)
+    thresholds = [0.50, 0.60, 0.70]
 
-    print("\n===== RAG EVALUATION REPORT =====")
+    print("\n===== SEMANTIC RETRIEVAL EXPERIMENT =====")
 
-    print("Total Questions:", report["total_questions"])
+    for threshold in thresholds:
 
-    print("Successful Hits:", report["successful_hits"])
+        report = evaluate_retrieval(
+            top_k=3,
+            similarity_threshold=threshold
+        )
 
-    print("Hit Rate:", report["hit_rate"])
+        print("\n====================================")
+        print("Similarity Threshold:", threshold)
+        print("Total Questions:", report["total_questions"])
+        print("Successful Hits:", report["successful_hits"])
+        print("Hit Rate:", report["hit_rate"])
+        print("MRR:", report["mrr"])
 
-    print("Mean Reciprocal Rank:", report["mrr"])
+        print("\nIndividual Results:")
 
-    print("\n===== INDIVIDUAL RESULTS =====")
+        for index, result in enumerate(
+            report["results"], start=1
+        ):
 
-    for index, result in enumerate(report["results"], start=1):
-
-        print(f"\nQuestion {index}:")
-        print("Question:", result["question"])
-        print("Expected:", result["expected_source"])
-        print("Retrieved:", result["retrieved_sources"])
-        print("Rank:", result["rank"])
-        print("Hit:", result["hit"])
-        print("Reciprocal Rank:", result["reciprocal_rank"])
+            print(f"\nQuestion {index}:")
+            print("Expected:", result["expected_source"])
+            print("Retrieved:", result["retrieved_sources"])
+            print("Rank:", result["rank"])
+            print("Hit:", result["hit"])
+            print("Reciprocal Rank:", result["reciprocal_rank"])
