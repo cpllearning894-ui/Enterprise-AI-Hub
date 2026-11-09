@@ -11,7 +11,7 @@ from backend.rag.semantic_rag_service import (
     "backend.rag.semantic_rag_service.OllamaProvider"
 )
 @patch(
-    "backend.rag.semantic_rag_service.semantic_search"
+    "backend.rag.semantic_rag_service.hybrid_search"
 )
 def test_semantic_rag_success(
     mock_search,
@@ -22,7 +22,16 @@ def test_semantic_rag_success(
         {
             "document": "it_policy.txt",
             "chunk": "IT approval is required.",
-            "score": 0.85
+            "rrf_score": 0.032,
+            "keyword_rank": 1,
+            "semantic_rank": 1
+        },
+        {
+            "document": "company_policy.txt",
+            "chunk": "Employees must follow IT policies.",
+            "rrf_score": 0.016,
+            "keyword_rank": 2,
+            "semantic_rank": None
         }
     ]
 
@@ -39,9 +48,21 @@ def test_semantic_rag_success(
         "Yes, IT approval is required."
     )
 
-    # Check the retrieved source
+    # Check that both sources are returned
+    assert len(result["sources"]) == 2
+
     assert result["sources"][0]["document"] == (
         "it_policy.txt"
+    )
+
+    assert result["sources"][1]["document"] == (
+        "company_policy.txt"
+    )
+
+    # Check that Hybrid Search was called
+    mock_search.assert_called_once_with(
+        "Do I need permission?",
+        top_k=3
     )
 
     # Check evaluation results
@@ -57,14 +78,13 @@ def test_semantic_rag_success(
         "keyword_overlap_baseline"
     )
 
-    # All scores must be between 0 and 1
     assert 0.0 <= evaluation["faithfulness"] <= 1.0
     assert 0.0 <= evaluation["answer_relevance"] <= 1.0
     assert 0.0 <= evaluation["context_relevance"] <= 1.0
 
 
 @patch(
-    "backend.rag.semantic_rag_service.semantic_search"
+    "backend.rag.semantic_rag_service.hybrid_search"
 )
 def test_semantic_rag_no_results(mock_search):
 
