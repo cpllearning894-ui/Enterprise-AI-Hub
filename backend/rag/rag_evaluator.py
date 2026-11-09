@@ -28,7 +28,8 @@ def evaluate_retrieval(
     similarity_threshold: float = 0.70
 ) -> dict:
     """
-    Evaluate semantic retrieval using Hit Rate and MRR.
+    Evaluate semantic retrieval using:
+    Hit Rate, MRR and Document-Level Precision@K.
     """
 
     if top_k <= 0:
@@ -49,6 +50,7 @@ def evaluate_retrieval(
 
     successful_hits = 0
     reciprocal_rank_sum = 0.0
+    precision_sum = 0.0
 
     evaluation_results = []
 
@@ -92,29 +94,55 @@ def evaluate_retrieval(
 
         reciprocal_rank_sum += reciprocal_rank
 
+        # Step 5: Calculate Document-Level Precision@K
+        relevant_documents = sum(
+            1
+            for source in retrieved_sources
+            if source == expected_source
+        )
+
+        if retrieved_sources:
+
+            precision_at_k = (
+                relevant_documents / len(retrieved_sources)
+            )
+
+        else:
+
+            precision_at_k = 0.0
+
+        precision_sum += precision_at_k
+
         evaluation_results.append({
             "question": question,
             "expected_source": expected_source,
             "retrieved_sources": retrieved_sources,
             "rank": rank,
             "hit": rank is not None,
-            "reciprocal_rank": reciprocal_rank
+            "reciprocal_rank": round(reciprocal_rank, 4),
+            "precision_at_k": round(precision_at_k, 4)
         })
 
-    # Step 5: Calculate evaluation metrics
+    # Step 6: Calculate average evaluation metrics
     hit_rate = successful_hits / total_questions
 
     mean_reciprocal_rank = (
         reciprocal_rank_sum / total_questions
     )
 
-    # Step 6: Return evaluation report
+    mean_precision_at_k = (
+        precision_sum / total_questions
+    )
+
+    # Step 7: Return evaluation report
     return {
         "total_questions": total_questions,
         "successful_hits": successful_hits,
+        "top_k": top_k,
         "similarity_threshold": similarity_threshold,
         "hit_rate": round(hit_rate, 4),
         "mrr": round(mean_reciprocal_rank, 4),
+        "precision_at_k": round(mean_precision_at_k, 4),
         "results": evaluation_results
     }
 
@@ -138,6 +166,7 @@ if __name__ == "__main__":
         print("Successful Hits:", report["successful_hits"])
         print("Hit Rate:", report["hit_rate"])
         print("MRR:", report["mrr"])
+        print("Precision@K:", report["precision_at_k"])
 
         print("\nIndividual Results:")
 
@@ -151,3 +180,4 @@ if __name__ == "__main__":
             print("Rank:", result["rank"])
             print("Hit:", result["hit"])
             print("Reciprocal Rank:", result["reciprocal_rank"])
+            print("Precision@K:", result["precision_at_k"])
