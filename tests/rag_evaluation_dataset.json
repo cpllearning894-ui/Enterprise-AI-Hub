@@ -11,5 +11,61 @@
     {
         "question": "What is the company's leave policy?",
         "expected_source": "company_policy.txt"
+    },
+    {
+        "question": "What are the normal working hours for employees?",
+        "expected_source": "company_policy.txt"
+    },
+    {
+        "question": "How many days of paid annual leave do full-time employees receive?",
+        "expected_source": "company_policy.txt"
+    },
+    {
+        "question": "How many days per week can employees work remotely?",
+        "expected_source": "company_policy.txt"
+    },
+    {
+        "question": "Who must approve an employee's remote work?",
+        "expected_source": "company_policy.txt"
+    },
+    {
+        "question": "Who should employees contact when they have technical problems?",
+        "expected_source": "company_policy.txt"
+    },
+    {
+        "question": "What should employees do if they forget their passwords?",
+        "expected_source": "it_policy.txt"
+    },
+    {
+        "question": "When is the IT Help Desk available?",
+        "expected_source": "it_policy.txt"
+    },
+    {
+        "question": "What should employees do if their company laptop is lost?",
+        "expected_source": "it_policy.txt"
+    },
+    {
+        "question": "Does using a new AI tool with company data require approval?",
+        "expected_source": "it_policy.txt"
+    },
+    {
+        "question": "Which department must approve new AI tools?",
+        "expected_source": "it_policy.txt"
+    },
+    {
+        "question": "What should employees do when they receive suspicious emails?",
+        "expected_source": "security_policy.txt"
+    },
+    {
+        "question": "What password security practices must employees follow?",
+        "expected_source": "security_policy.txt"
+    },
+    {
+        "question": "Can employees share their passwords with other people?",
+        "expected_source": "security_policy.txt"
+    },
+    {
+        "question": "Can confidential company information be shared with unauthorized people?",
+        "expected_source": "security_policy.txt"
     }
 ]
