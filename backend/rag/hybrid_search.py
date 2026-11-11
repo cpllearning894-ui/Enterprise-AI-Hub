@@ -67,6 +67,7 @@ def keyword_search(
     return results[:top_k]
 
 
+
 def reciprocal_rank_fusion(
     keyword_results: list[dict],
     semantic_results: list[dict],
@@ -95,7 +96,9 @@ def reciprocal_rank_fusion(
                 "chunk": result["chunk"],
                 "rrf_score": 0.0,
                 "keyword_rank": None,
-                "semantic_rank": None
+                "semantic_rank": None,
+                "semantic_score": None,
+                "keyword_score": None,
             }
 
         fused_results[key]["rrf_score"] += (
@@ -103,6 +106,8 @@ def reciprocal_rank_fusion(
         )
 
         fused_results[key]["keyword_rank"] = rank
+
+        fused_results[key]["keyword_score"] = result["score"]
 
     # Process semantic search rankings
     for rank, result in enumerate(
@@ -121,7 +126,9 @@ def reciprocal_rank_fusion(
                 "chunk": result["chunk"],
                 "rrf_score": 0.0,
                 "keyword_rank": None,
-                "semantic_rank": None
+                "semantic_rank": None,
+                "semantic_score": None,
+                "keyword_score": None,
             }
 
         fused_results[key]["rrf_score"] += (
@@ -129,6 +136,10 @@ def reciprocal_rank_fusion(
         )
 
         fused_results[key]["semantic_rank"] = rank
+
+        fused_results[key]["semantic_score"] = (
+            result["score"]
+        )
 
     ranked_results = sorted(
         fused_results.values(),
@@ -180,8 +191,17 @@ def hybrid_search(
         rrf_k=rrf_k
     )
 
-    # Step 4: Return the highest-ranked results
-    return fused_results[:top_k]
+    # Step 4: Keep results supported by semantic search
+    relevant_results = [
+        result
+        for result in fused_results
+        if result["semantic_score"] is not None
+    ]
+
+    # Step 5: Return the highest-ranked relevant results
+    return relevant_results[:top_k]
+
+
 
 
 if __name__ == "__main__":
